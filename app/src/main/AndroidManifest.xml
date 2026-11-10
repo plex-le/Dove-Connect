@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.plexle.doveconnect"
+    android:versionCode="3"
+    android:versionName="1.2">
+
+    <uses-sdk
+        android:minSdkVersion="29"
+        android:targetSdkVersion="36" />
+
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+
+    <queries>
+        <package android:name="net.dinglisch.android.taskerm" />
+    </queries>
+
+    <application
+        android:label="Dove Connect"
+        android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false"
+        android:debuggable="true"
+        android:theme="@style/AppTheme">
+
+        <!-- 主界面：自动跟随最近连接耳机、测试强连/断开 -->
+        <activity
+            android:name=".MainActivity"
+            android:label="Dove Connect"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 长按磁贴：直接跳转到当前目标耳机的系统蓝牙设置详情页 -->
+        <activity
+            android:name=".TileLongPressActivity"
+            android:theme="@android:style/Theme.NoDisplay"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
+        </activity>
+
+        <!-- 下拉通知栏快捷设置磁贴 (Quick Settings Tile) -->
+        <service
+            android:name=".DoveTileService"
+            android:label="Dove Connect"
+            android:icon="@drawable/ic_qs_dove"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.service.quicksettings.ACTIVE_TILE"
+                android:value="false" />
+        </service>
+
+        <!-- Tasker 插件配置页 (可选择任意已配对耳机 + 动作) -->
+        <activity
+            android:name=".TaskerEditActivity"
+            android:label="Dove Connect"
+            android:icon="@drawable/ic_qs_dove"
+            android:exported="true"
+            android:theme="@style/AppTheme.Dialog">
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.EDIT_SETTING" />
+            </intent-filter>
+        </activity>
+
+        <!-- 向 Tasker 共享一键导入的任务 XML -->
+        <provider
+            android:name=".TaskerXmlProvider"
+            android:authorities="com.plexle.doveconnect.provider"
+            android:exported="false"
+            android:grantUriPermissions="true" />
+
+        <!-- Tasker 插件执行接收器 & 系统蓝牙连接状态广播接收器 -->
+        <receiver
+            android:name=".TaskerFireReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.twofortyfouram.locale.intent.action.FIRE_SETTING" />
+                <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
+                <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" />
+                <action android:name="android.bluetooth.a2dp.profile.action.CONNECTION_STATE_CHANGED" />
+                <action android:name="android.bluetooth.headset.profile.action.CONNECTION_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+</manifest>
